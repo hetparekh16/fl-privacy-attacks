@@ -23,6 +23,10 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 eda = [
+    "ipywidgets>=8.1.5",
+    "jupyterlab>=4.4.0",
+    "jupytext>=1.17.0",
     "matplotlib>=3.10.1",
     "seaborn>=0.13.2",
+    "tqdm>=4.67.1",
 ]
