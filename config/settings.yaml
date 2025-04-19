@@ -1,9 +1,0 @@
-debug: false
-log_level: INFO
-seed: 42
-
-fl:
-  rounds: 10
-  learning_rate: 0.01
-  momentum: 0.9
-  num_clients: 50
