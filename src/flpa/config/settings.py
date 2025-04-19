@@ -8,7 +8,6 @@ settings = Dynaconf(
     settings_files=[
         f"{PROJECT_ROOT}/config/settings.yaml",
     ],
-    environments=True,
-    env_switcher="FLPA_ENV",
+    environments=False,
     load_dotenv=True,
 )
