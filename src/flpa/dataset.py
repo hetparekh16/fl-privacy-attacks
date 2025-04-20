@@ -1,12 +1,15 @@
 import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import Subset
+from loguru import logger
 
 
 def load_partitioned_datasets(num_clients):
     transform = transforms.Compose(
         [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
     )
+
+    logger.info("Loading CIFAR10 dataset for training and testing")
 
     trainset = torchvision.datasets.CIFAR10(
         root="./data", train=True, download=True, transform=transform
@@ -17,10 +20,14 @@ def load_partitioned_datasets(num_clients):
 
     # TODO: Use ramdom sampling instead of range based sampling in the future
 
+    logger.info(f"Partitioning training dataset with {len(trainset)} samples")
+
     client_data = []
     data_per_client = len(trainset) // num_clients
     for i in range(num_clients):
         indices = list(range(i * data_per_client, (i + 1) * data_per_client))
         client_data.append(Subset(trainset, indices))
+
+    logger.success(f"Successfully created {len(client_data)} client datasets")
 
     return client_data, testset
