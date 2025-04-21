@@ -1,8 +1,23 @@
-import torch
-import flwr
-from flpa.config import NUM_ROUNDS
+import flwr as fl
+from flpa.client import FLClient
+from flpa.model import CNN
+from flpa.dataset import load_partitioned_datasets
+from typing import Union
 
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Training on {DEVICE}")
-print(f"Flower {flwr.__version__} / PyTorch {torch.__version__}")
-print(f"Federated Learning rounds: {NUM_ROUNDS}")
+NUM_CLIENTS = 5
+
+
+def client_fn(cid: Union[str, int]):
+    cid = int(cid)
+    train_datasets, test_dataset = load_partitioned_datasets(NUM_CLIENTS)
+    model = CNN()
+    train_data = train_datasets[cid]
+    return FLClient(model, train_data, test_dataset).to_client()
+
+
+if __name__ == "__main__":
+    fl.simulation.start_simulation(
+        client_fn=client_fn,
+        num_clients=NUM_CLIENTS,
+        config=fl.server.ServerConfig(num_rounds=3),
+    )
