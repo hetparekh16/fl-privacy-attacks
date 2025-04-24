@@ -2,16 +2,16 @@ import flwr as fl
 from flpa.client import FLClient
 from flpa.model import CNN
 from flpa.dataset import load_partitioned_datasets
-from typing import Union
+from flpa.config import NUM_CLIENTS
 
-NUM_CLIENTS = 5
+client_datasets, test_dataset = load_partitioned_datasets(NUM_CLIENTS)
+client_ids = list(client_datasets.keys())
 
 
-def client_fn(cid: Union[str, int]):
-    cid = int(cid)
-    train_datasets, test_dataset = load_partitioned_datasets(NUM_CLIENTS)
+def client_fn(cid: int):
+    client_id = client_ids[cid]
     model = CNN()
-    train_data = train_datasets[cid]
+    train_data = client_datasets[client_id]
     return FLClient(model, train_data, test_dataset).to_client()
 
 
