@@ -5,6 +5,7 @@ description = "Add your description here"
 authors = [
     { name = "Het Parekh", email = "hetparekh16@gmail.com" }
 ]
+license = "Apache-2.0"
 requires-python = ">=3.12"
 dependencies = [
     "dynaconf>=3.2.10",
@@ -16,12 +17,12 @@ dependencies = [
     "torchvision>=0.21.0",
 ]
 
-[project.scripts]
-flpa = "flpa:main"
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["./src/flpa"]
 
 [dependency-groups]
 eda = [
@@ -32,3 +33,22 @@ eda = [
     "seaborn>=0.13.2",
     "tqdm>=4.67.1",
 ]
+
+[tool.flwr.app]
+publisher = "het"
+
+[tool.flwr.app.components]
+serverapp = "flpa.server_app:app"
+clientapp = "flpa.client_app:app"
+
+[tool.flwr.app.config]
+num-server-rounds = 3
+fraction-fit = 0.5
+local-epochs = 1
+
+
+[tool.flwr.federations]
+default = "local-simulation"
+
+[tool.flwr.federations.local-simulation]
+options.num-supernodes = 10
