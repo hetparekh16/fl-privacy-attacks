@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from flpa.config import LEARNING_RATE
 
 
 class FLClient(fl.client.NumPyClient):
@@ -25,7 +26,7 @@ class FLClient(fl.client.NumPyClient):
     def fit(self, parameters, config=None):
         self.set_parameters(parameters)
         self.model.train()
-        optimizer = optim.Adam(self.model.parameters(), lr=0.001)
+        optimizer = optim.Adam(self.model.parameters(), lr=LEARNING_RATE)
         criterion = nn.CrossEntropyLoss()
 
         train_loader = DataLoader(self.train_data, batch_size=32, shuffle=True)
