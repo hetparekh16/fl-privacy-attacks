@@ -6,7 +6,15 @@ authors = [
     { name = "Het Parekh", email = "hetparekh16@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "dynaconf>=3.2.10",
+    "flwr-datasets[vision]>=0.5.0",
+    "flwr[simulation]>=1.17.0",
+    "loguru>=0.7.3",
+    "pydantic>=2.11.3",
+    "torch>=2.6.0",
+    "torchvision>=0.21.0",
+]
 
 [project.scripts]
 flpa = "flpa:main"
@@ -14,3 +22,13 @@ flpa = "flpa:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+eda = [
+    "ipywidgets>=8.1.5",
+    "jupyterlab>=4.4.0",
+    "jupytext>=1.17.0",
+    "matplotlib>=3.10.1",
+    "seaborn>=0.13.2",
+    "tqdm>=4.67.1",
+]
