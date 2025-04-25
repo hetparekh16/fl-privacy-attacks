@@ -3,16 +3,21 @@ from flpa.client import FLClient
 from flpa.model import CNN
 from flpa.dataset import load_partitioned_datasets
 from flpa.config import NUM_CLIENTS
+from flwr.common import Context
 
 client_datasets, test_dataset = load_partitioned_datasets(NUM_CLIENTS)
 client_ids = list(client_datasets.keys())
 
 
-def client_fn(cid: int):
-    client_id = client_ids[cid]
+def client_fn(cid: str) -> FLClient:
+    cid_int = int(cid)
+
+    client_index = cid_int % len(client_ids)
+    client_id = client_ids[client_index]
+
     model = CNN()
     train_data = client_datasets[client_id]
-    return FLClient(model, train_data, test_dataset).to_client()
+    return FLClient(model, train_data, test_dataset).to_client()  # type: ignore
 
 
 if __name__ == "__main__":
