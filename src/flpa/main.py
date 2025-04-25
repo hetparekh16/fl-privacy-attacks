@@ -2,7 +2,7 @@ import flwr as fl
 from flpa.client import FLClient
 from flpa.model import CNN
 from flpa.dataset import load_partitioned_datasets
-from flpa.config import NUM_CLIENTS
+from flpa.config import NUM_CLIENTS, NUM_ROUNDS
 from flwr.common import Context
 
 client_datasets, test_dataset = load_partitioned_datasets(NUM_CLIENTS)
@@ -24,5 +24,5 @@ if __name__ == "__main__":
     fl.simulation.start_simulation(
         client_fn=client_fn,
         num_clients=NUM_CLIENTS,
-        config=fl.server.ServerConfig(num_rounds=3),
+        config=fl.server.ServerConfig(num_rounds=NUM_ROUNDS),
     )
