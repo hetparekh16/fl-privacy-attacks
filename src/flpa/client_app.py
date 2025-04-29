@@ -40,7 +40,7 @@ def client_fn(context: Context):
     net = CNN()
     partition_id = context.node_config["partition-id"]
     num_partitions = context.node_config["num-partitions"]
-    trainloader, valloader = load_data(partition_id, num_partitions)
+    trainloader, valloader = load_data(partition_id, num_partitions)  # type: ignore
     local_epochs = context.run_config["local-epochs"]
 
     # Return Client instance
