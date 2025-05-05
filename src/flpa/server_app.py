@@ -37,6 +37,29 @@ class LoggingFedAvg(FedAvg):
 
         return aggregated_parameters, metrics
 
+    def aggregate_evaluate(self, server_round, results, failures):
+        print("Now we will send the aggregated model to clients for evaluation...")
+        print(f"\n📊 [Round {server_round}] Evaluation results:")
+
+        for client, evaluate_res in results:
+            loss = evaluate_res.loss
+            accuracy = evaluate_res.metrics.get("accuracy", None)
+            print(f"  ↳ Client {client.cid} loss: {loss:.4f}, accuracy: {accuracy:.4f}")
+
+        # Aggregate as usual
+        agg_loss, agg_metrics = super().aggregate_evaluate(
+            server_round, results, failures
+        )
+
+        # Print server-aggregated evaluation result
+        print(f"✅ [Round {server_round}] Aggregated eval loss: {agg_loss:.4f}")
+        if "accuracy" in agg_metrics:
+            print(
+                f"✅ [Round {server_round}] Aggregated eval accuracy: {agg_metrics['accuracy']:.4f}"
+            )
+
+        return agg_loss, agg_metrics
+
 
 def server_fn(context: Context):
     num_rounds = context.run_config["num-server-rounds"]
