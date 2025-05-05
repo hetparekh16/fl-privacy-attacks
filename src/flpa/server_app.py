@@ -5,6 +5,16 @@ from flwr.server.strategy import FedAvg
 import hashlib
 
 
+def weighted_average(metrics_list):
+    total = sum(num_examples for num_examples, _ in metrics_list)
+    weighted_acc = sum(
+        metrics["accuracy"] * num_examples
+        for num_examples, metrics in metrics_list
+        if "accuracy" in metrics
+    )
+    return {"accuracy": weighted_acc / total if total > 0 else 0.0}
+
+
 class LoggingFedAvg(FedAvg):
     def aggregate_fit(self, server_round, results, failures):
         selected_clients = [client.cid for client, _ in results]
@@ -73,6 +83,7 @@ def server_fn(context: Context):
         fraction_evaluate=1.0,
         min_available_clients=2,
         initial_parameters=parameters,
+        evaluate_metrics_aggregation_fn=weighted_average,  # type: ignore
     )
     config = ServerConfig(num_rounds=num_rounds)  # type: ignore
 
