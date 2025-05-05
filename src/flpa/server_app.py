@@ -8,8 +8,11 @@ import hashlib
 class LoggingFedAvg(FedAvg):
     def aggregate_fit(self, server_round, results, failures):
         selected_clients = [client.cid for client, _ in results]
+        # Log selected clients
         print(f"\n🔁 [Round {server_round}] Selected clients: {selected_clients}")
         print("Now clients will train their models and return the weights...")
+
+        # Log weights hash for each client
         for client, fit_res in results:
             weights = parameters_to_ndarrays(fit_res.parameters)
             flat_weights = b"".join(w.tobytes() for w in weights)
@@ -17,7 +20,22 @@ class LoggingFedAvg(FedAvg):
 
             print(f"  ↳ Client {client.cid} returned weights hash: {weight_hash}")
 
-        return super().aggregate_fit(server_round, results, failures)
+        # Aggregate as usual
+        aggregated_parameters, metrics = super().aggregate_fit(
+            server_round, results, failures
+        )
+
+        # Log aggregated weights hash
+        if aggregated_parameters is not None:
+            agg_weights = parameters_to_ndarrays(aggregated_parameters)
+            flat = b"".join(w.tobytes() for w in agg_weights)
+            agg_hash = hashlib.sha256(flat).hexdigest()[:8]
+            print("First round is completed! Now weights are aggregated...")
+            print(
+                f"✅ This is the Aggregated weights hash: {agg_hash} for round {server_round}"
+            )
+
+        return aggregated_parameters, metrics
 
 
 def server_fn(context: Context):
