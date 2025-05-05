@@ -1,13 +1,22 @@
-from flwr.common import Context, ndarrays_to_parameters
+from flwr.common import Context, ndarrays_to_parameters, parameters_to_ndarrays
 from flwr.server import ServerApp, ServerAppComponents, ServerConfig
 from flpa.task import CNN, get_weights
 from flwr.server.strategy import FedAvg
+import hashlib
 
 
 class LoggingFedAvg(FedAvg):
     def aggregate_fit(self, server_round, results, failures):
         selected_clients = [client.cid for client, _ in results]
         print(f"\n🔁 [Round {server_round}] Selected clients: {selected_clients}")
+        print("Now clients will train their models and return the weights...")
+        for client, fit_res in results:
+            weights = parameters_to_ndarrays(fit_res.parameters)
+            flat_weights = b"".join(w.tobytes() for w in weights)
+            weight_hash = hashlib.sha256(flat_weights).hexdigest()[:8]
+
+            print(f"  ↳ Client {client.cid} returned weights hash: {weight_hash}")
+
         return super().aggregate_fit(server_round, results, failures)
 
 
