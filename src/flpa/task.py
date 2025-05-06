@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 import torch
 import torch.nn as nn
@@ -83,20 +84,40 @@ def train(net, trainloader, epochs, device):
 
 
 def test(net, testloader, device):
-    """Validate the model on the test set."""
+    """Evaluate model and return loss + full metrics."""
     net.to(device)
     criterion = torch.nn.CrossEntropyLoss()
     correct, loss = 0, 0.0
+
+    all_preds = []
+    all_labels = []
+
     with torch.no_grad():
         for batch in testloader:
             images = batch["img"].to(device)
             labels = batch["label"].to(device)
             outputs = net(images)
             loss += criterion(outputs, labels).item()
-            correct += (torch.max(outputs.data, 1)[1] == labels).sum().item()
+
+            preds = torch.max(outputs, 1)[1]
+            correct += (preds == labels).sum().item()
+
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+
     accuracy = correct / len(testloader.dataset)
+    precision = precision_score(all_labels, all_preds, average="macro", zero_division=0)
+    recall = recall_score(all_labels, all_preds, average="macro", zero_division=0)
+    f1 = f1_score(all_labels, all_preds, average="macro", zero_division=0)
+
     loss = loss / len(testloader)
-    return loss, accuracy
+
+    return loss, {
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+    }
 
 
 def get_weights(net):

@@ -7,12 +7,17 @@ import hashlib
 
 def weighted_average(metrics_list):
     total = sum(num_examples for num_examples, _ in metrics_list)
-    weighted_acc = sum(
-        metrics["accuracy"] * num_examples
-        for num_examples, metrics in metrics_list
-        if "accuracy" in metrics
-    )
-    return {"accuracy": weighted_acc / total if total > 0 else 0.0}
+    result = {}
+
+    for key in ["accuracy", "precision", "recall", "f1"]:
+        weighted_sum = sum(
+            metrics.get(key, 0.0) * num_examples
+            for num_examples, metrics in metrics_list
+            if key in metrics
+        )
+        result[key] = weighted_sum / total if total > 0 else 0.0
+
+    return result
 
 
 class LoggingFedAvg(FedAvg):
@@ -52,21 +57,20 @@ class LoggingFedAvg(FedAvg):
         print(f"\n📊 [Round {server_round}] Evaluation results:")
 
         for client, evaluate_res in results:
-            loss = evaluate_res.loss
-            accuracy = evaluate_res.metrics.get("accuracy", None)
-            print(f"  ↳ Client {client.cid} loss: {loss:.4f}, accuracy: {accuracy:.4f}")
+            metrics = evaluate_res.metrics
+            metric_str = f"  ↳ Client {client.cid} loss: {evaluate_res.loss:.4f}"
+            for k, v in metrics.items():
+                metric_str += f", {k}: {v:.4f}"
+            print(metric_str)
 
         # Aggregate as usual
         agg_loss, agg_metrics = super().aggregate_evaluate(
             server_round, results, failures
         )
 
-        # Print server-aggregated evaluation result
         print(f"✅ [Round {server_round}] Aggregated eval loss: {agg_loss:.4f}")
-        if "accuracy" in agg_metrics:
-            print(
-                f"✅ [Round {server_round}] Aggregated eval accuracy: {agg_metrics['accuracy']:.4f}"
-            )
+        for k, v in agg_metrics.items():
+            print(f"✅ [Round {server_round}] Aggregated eval {k}: {v:.4f}")
 
         return agg_loss, agg_metrics
 
