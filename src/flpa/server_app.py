@@ -3,6 +3,8 @@ from flwr.server import ServerApp, ServerAppComponents, ServerConfig
 from flpa.task import CNN, get_weights
 from flwr.server.strategy import FedAvg
 import hashlib
+from flpa.utils import save_eval_round
+from datetime import datetime
 
 
 def weighted_average(metrics_list):
@@ -52,16 +54,27 @@ class LoggingFedAvg(FedAvg):
 
         return aggregated_parameters, metrics
 
+    # inside LoggingFedAvg class
     def aggregate_evaluate(self, server_round, results, failures):
         print("Now we will send the aggregated model to clients for evaluation...")
         print(f"\n📊 [Round {server_round}] Evaluation results:")
 
+        # Prepare data for logging
+        client_logs = []
         for client, evaluate_res in results:
             metrics = evaluate_res.metrics
             metric_str = f"  ↳ Client {client.cid} loss: {evaluate_res.loss:.4f}"
+            log_entry = {
+                "round_id": server_round,
+                "client_id": str(client.cid),
+                "loss": evaluate_res.loss,
+                "timestamp": datetime.now(),
+            }
             for k, v in metrics.items():
                 metric_str += f", {k}: {v:.4f}"
+                log_entry[k] = v
             print(metric_str)
+            client_logs.append(log_entry)
 
         # Aggregate as usual
         agg_loss, agg_metrics = super().aggregate_evaluate(
@@ -69,8 +82,17 @@ class LoggingFedAvg(FedAvg):
         )
 
         print(f"✅ [Round {server_round}] Aggregated eval loss: {agg_loss:.4f}")
+        agg_log = {
+            "round_id": server_round,
+            "loss": agg_loss,
+            "timestamp": datetime.now(),
+        }
         for k, v in agg_metrics.items():
             print(f"✅ [Round {server_round}] Aggregated eval {k}: {v:.4f}")
+            agg_log[k] = v
+
+        # Save metrics to parquet
+        save_eval_round(server_round, client_logs, agg_log)
 
         return agg_loss, agg_metrics
 
