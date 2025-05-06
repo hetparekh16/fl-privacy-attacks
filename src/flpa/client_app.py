@@ -1,6 +1,6 @@
 import torch
 
-from flwr.client import ClientApp, NumPyClient
+from flwr.client import ClientApp, NumPyClient, Client
 from flwr.common import Context
 from flpa.task import CNN, get_weights, load_data, set_weights, test, train
 
@@ -35,7 +35,7 @@ class FlowerClient(NumPyClient):
         return loss, len(self.valloader.dataset), {"accuracy": accuracy}
 
 
-def client_fn(context: Context):
+def client_fn(context: Context) -> Client:
     # Load model and data
     net = CNN()
     partition_id = context.node_config["partition-id"]
