@@ -3,7 +3,7 @@ from flwr.server import ServerApp, ServerAppComponents, ServerConfig
 from flpa.task import CNN, get_weights
 from flwr.server.strategy import FedAvg
 import hashlib
-from flpa.utils import save_eval_round
+from flpa.utils import save_eval_round, save_train_round
 from datetime import datetime
 
 
@@ -23,26 +23,58 @@ def weighted_average(metrics_list):
 
 
 class LoggingFedAvg(FedAvg):
+
+    def configure_fit(self, server_round, parameters, client_manager):
+        client_instructions = super().configure_fit(
+            server_round, parameters, client_manager
+        )
+        updated_instructions = []
+
+        for client, fit_ins in client_instructions:
+            # Inject round number into config
+            fit_ins.config["server_round"] = server_round
+            updated_instructions.append((client, fit_ins))
+
+        return updated_instructions
+
     def aggregate_fit(self, server_round, results, failures):
         selected_clients = [client.cid for client, _ in results]
-        # Log selected clients
         print(f"\n🔁 [Round {server_round}] Selected clients: {selected_clients}")
         print("Now clients will train their models and return the weights...")
 
-        # Log weights hash for each client
+        client_logs = []
+
         for client, fit_res in results:
             weights = parameters_to_ndarrays(fit_res.parameters)
             flat_weights = b"".join(w.tobytes() for w in weights)
             weight_hash = hashlib.sha256(flat_weights).hexdigest()[:8]
-
             print(f"  ↳ Client {client.cid} returned weights hash: {weight_hash}")
+
+            # sample_ids = fit_res.metrics.get("sample_ids")
+
+            print(
+                f"  ↳ Client {client.cid} used the sample_ids: {len(fit_res.metrics.get('sample_ids'))} for training before sending it to saving function in  server_app. py"  # type: ignore
+            )
+            save_train_round(
+                round_id=server_round,
+                client_id=client.cid,
+                sample_ids=fit_res.metrics.get("sample_ids"),
+            )
+
+            log_entry = {
+                "round_id": server_round,
+                "client_id": str(client.cid),
+                "train_loss": fit_res.metrics.get("train_loss"),
+                "timestamp": datetime.now(),
+            }
+
+            client_logs.append(log_entry)
 
         # Aggregate as usual
         aggregated_parameters, metrics = super().aggregate_fit(
             server_round, results, failures
         )
 
-        # Log aggregated weights hash
         if aggregated_parameters is not None:
             agg_weights = parameters_to_ndarrays(aggregated_parameters)
             flat = b"".join(w.tobytes() for w in agg_weights)
