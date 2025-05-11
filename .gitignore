@@ -11,6 +11,7 @@ dist/
 
 # Data (CIFAR10 dataset)
 data/
+metrics_logs/
 
 # Virtual environments
 .env
