@@ -12,15 +12,19 @@ def save_eval_round(
     output_dir = Path(output_dir)
     output_dir.mkdir(exist_ok=True)
 
+    # Create subdirectories
+    client_logs_dir = output_dir / "client_logs"
+    client_logs_dir.mkdir(exist_ok=True)
+
+    agg_logs_dir = output_dir / "aggregated_logs"
+    agg_logs_dir.mkdir(exist_ok=True)
+
     client_df = pd.DataFrame(client_rows)
     agg_df = pd.DataFrame([agg_row])
 
-    client_df.to_parquet(
-        output_dir / f"/client_logs/round_{round_id}_client_eval.parquet"
-    )
-    agg_df.to_parquet(
-        output_dir / f"/aggregated_logs/round_{round_id}_agg_eval.parquet"
-    )
+    # Fixed paths without leading slashes
+    client_df.to_parquet(client_logs_dir / f"round_{round_id}_client_eval.parquet")
+    agg_df.to_parquet(agg_logs_dir / f"round_{round_id}_agg_eval.parquet")
 
     print(f"📦 Saved round {round_id} evaluation metrics to {output_dir}")
 
@@ -33,6 +37,10 @@ def save_train_round(
 ):
     output_dir = Path(output_dir)
     output_dir.mkdir(exist_ok=True)
+
+    # Create sample_id_logs directory if it doesn't exist
+    sample_id_logs_dir = output_dir / "sample_id_logs"
+    sample_id_logs_dir.mkdir(exist_ok=True)
 
     print(
         f"Client {client_id} used the sample_ids: {len(sample_ids)} for training before converting it into a list in utils.py"
@@ -55,11 +63,11 @@ def save_train_round(
         f"The datatype of sample_ids is of type {type(sample_ids_list)} and has length {len(sample_ids_list)}"
     )
 
-    parquet_path = output_dir / f"/sample_id_logs/round_{round_id}_client_train.parquet"
+    # Fixed path without leading slash
+    parquet_path = sample_id_logs_dir / f"round_{round_id}_client_train.parquet"
 
     if parquet_path.exists():
         existing_df = pd.read_parquet(parquet_path)
-
         df = pd.concat([existing_df, df], ignore_index=True)
 
     df.to_parquet(parquet_path)
