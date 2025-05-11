@@ -25,7 +25,7 @@ def save_train_round(
     round_id,
     client_id,
     sample_ids,
-    output_dir="data",
+    output_dir="metrics_logs",
 ):
     output_dir = Path(output_dir)
     output_dir.mkdir(exist_ok=True)
