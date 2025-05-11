@@ -15,8 +15,12 @@ def save_eval_round(
     client_df = pd.DataFrame(client_rows)
     agg_df = pd.DataFrame([agg_row])
 
-    client_df.to_parquet(output_dir / f"round_{round_id}_client_eval.parquet")
-    agg_df.to_parquet(output_dir / f"round_{round_id}_agg_eval.parquet")
+    client_df.to_parquet(
+        output_dir / f"/client_logs/round_{round_id}_client_eval.parquet"
+    )
+    agg_df.to_parquet(
+        output_dir / f"/aggregated_logs/round_{round_id}_agg_eval.parquet"
+    )
 
     print(f"📦 Saved round {round_id} evaluation metrics to {output_dir}")
 
@@ -51,7 +55,7 @@ def save_train_round(
         f"The datatype of sample_ids is of type {type(sample_ids_list)} and has length {len(sample_ids_list)}"
     )
 
-    parquet_path = output_dir / f"round_{round_id}_client_train.parquet"
+    parquet_path = output_dir / f"/sample_id_logs/round_{round_id}_client_train.parquet"
 
     if parquet_path.exists():
         existing_df = pd.read_parquet(parquet_path)
