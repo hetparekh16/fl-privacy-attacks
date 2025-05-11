@@ -4,23 +4,11 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from flwr_datasets import FederatedDataset
-from flwr_datasets.partitioner import IidPartitioner
 from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, Normalize, ToTensor
-from datasets import DatasetDict
-from uuid import uuid4
-
-
-def add_sample_ids(dataset_dict: DatasetDict) -> DatasetDict:
-    for split in dataset_dict.keys():
-        dataset = dataset_dict[split]
-        sample_ids = list(range(len(dataset)))
-        dataset = dataset.add_column(
-            name="sample_id", column=sample_ids, new_fingerprint=str(uuid4())
-        )
-        dataset_dict[split] = dataset
-    return dataset_dict
+import os
+from torch.utils.data import Subset
+import torchvision
+import random
 
 
 class CNN(nn.Module):
@@ -44,52 +32,66 @@ class CNN(nn.Module):
         return self.fc3(x)
 
 
-fds = None  # Cache FederatedDataset
-
-
 def load_data(partition_id: int, num_partitions: int):
-    """Load partition CIFAR10 data."""
-    # Only initialize `FederatedDataset` once
-    global fds
-    if fds is None:
-        partitioner = IidPartitioner(num_partitions=num_partitions)
-        fds = FederatedDataset(
-            dataset="uoft-cs/cifar10",
-            partitioners={"train": partitioner},
-            preprocessor=add_sample_ids,
+    """Manually partition CIFAR-10 using torch Subset for consistent sample IDs"""
+
+    data_root = "./data"
+    cifar_folder = os.path.join(data_root, "cifar-10-batches-py")
+    if not os.path.exists(cifar_folder):
+        raise RuntimeError(
+            f"CIFAR-10 dataset not found in '{cifar_folder}'. "
+            f"Run `prepare_dataset.py` before starting the simulation."
         )
-    partition = fds.load_partition(partition_id)
-    # Divide data on each node: 80% train, 20% test
-    partition_train_test = partition.train_test_split(test_size=0.2, seed=42)
-    pytorch_transforms = Compose(
-        [ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+
+    transform = torchvision.transforms.Compose(
+        [
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        ]
     )
 
-    def apply_transforms(batch):
-        """Apply transforms to the partition from FederatedDataset."""
-        batch["img"] = [pytorch_transforms(img) for img in batch["img"]]
-        return batch
+    trainset = torchvision.datasets.CIFAR10(
+        root=data_root, train=True, download=False, transform=transform
+    )
 
-    partition_train_test = partition_train_test.with_transform(apply_transforms)
-    trainloader = DataLoader(partition_train_test["train"], batch_size=32, shuffle=True)  # type: ignore
-    testloader = DataLoader(partition_train_test["test"], batch_size=32)  # type: ignore
+    # Deterministic partitioning
+    total_samples = len(trainset)
+    indices = list(range(total_samples))
+    random.seed(42)
+    random.shuffle(indices)
+
+    data_per_client = total_samples // num_partitions
+    start_idx = partition_id * data_per_client
+    end_idx = start_idx + data_per_client
+    client_indices = indices[start_idx:end_idx]
+
+    # 80-20 train/val split
+    split = int(0.8 * len(client_indices))
+    train_ids = client_indices[:split]
+    test_ids = client_indices[split:]
+
+    train_subset = Subset(trainset, train_ids)
+    test_subset = Subset(trainset, test_ids)
+
+    trainloader = DataLoader(train_subset, batch_size=32, shuffle=True)
+    testloader = DataLoader(test_subset, batch_size=32, shuffle=False)
+
     return trainloader, testloader
 
 
 def train(net, trainloader, epochs, device):
     """Train the model on the training set."""
-    net.to(device)  # move model to GPU if available
+    net.to(device)
     criterion = torch.nn.CrossEntropyLoss().to(device)
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     net.train()
     running_loss = 0.0
-    sample_ids = []
+
+    # Subset provides indices used for this client
+    sample_ids = list(trainloader.dataset.indices)
+
     for _ in range(epochs):
-        for batch in trainloader:
-            images = batch["img"]
-            labels = batch["label"]
-            ids = batch["sample_id"]
-            sample_ids.extend([int(i) for i in ids])
+        for images, labels in trainloader:
             optimizer.zero_grad()
             loss = criterion(net(images.to(device)), labels.to(device))
             loss.backward()
@@ -113,9 +115,9 @@ def test(net, testloader, device):
     all_labels = []
 
     with torch.no_grad():
-        for batch in testloader:
-            images = batch["img"].to(device)
-            labels = batch["label"].to(device)
+        for images, labels in testloader:
+            images = images.to(device)
+            labels = labels.to(device)
             outputs = net(images)
             loss += criterion(outputs, labels).item()
 
