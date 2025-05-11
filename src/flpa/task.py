@@ -8,6 +8,19 @@ from flwr_datasets import FederatedDataset
 from flwr_datasets.partitioner import IidPartitioner
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, Normalize, ToTensor
+from datasets import DatasetDict
+from uuid import uuid4
+
+
+def add_sample_ids(dataset_dict: DatasetDict) -> DatasetDict:
+    for split in dataset_dict.keys():
+        dataset = dataset_dict[split]
+        sample_ids = list(range(len(dataset)))
+        dataset = dataset.add_column(
+            name="sample_id", column=sample_ids, new_fingerprint=str(uuid4())
+        )
+        dataset_dict[split] = dataset
+    return dataset_dict
 
 
 class CNN(nn.Module):
@@ -43,6 +56,7 @@ def load_data(partition_id: int, num_partitions: int):
         fds = FederatedDataset(
             dataset="uoft-cs/cifar10",
             partitioners={"train": partitioner},
+            preprocessor=add_sample_ids,
         )
     partition = fds.load_partition(partition_id)
     # Divide data on each node: 80% train, 20% test
@@ -69,10 +83,13 @@ def train(net, trainloader, epochs, device):
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     net.train()
     running_loss = 0.0
+    sample_ids = []
     for _ in range(epochs):
         for batch in trainloader:
             images = batch["img"]
             labels = batch["label"]
+            ids = batch["sample_id"]
+            sample_ids.extend([int(i) for i in ids])
             optimizer.zero_grad()
             loss = criterion(net(images.to(device)), labels.to(device))
             loss.backward()
@@ -80,7 +97,10 @@ def train(net, trainloader, epochs, device):
             running_loss += loss.item()
 
     avg_trainloss = running_loss / len(trainloader)
-    return avg_trainloss
+    print(
+        f"(1) Number of samples used for training this client: {len(sample_ids)} in task.py"
+    )
+    return avg_trainloss, sample_ids
 
 
 def test(net, testloader, device):
