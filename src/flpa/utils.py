@@ -7,7 +7,7 @@ def save_eval_round(
     round_id: int,
     client_rows: List[Dict[str, Union[str, int, float, list]]],
     agg_row: Dict[str, Union[str, int, float]],
-    output_dir: Union[str, Path] = "metrics_logs",
+    output_dir: Union[str, Path] = "outputs",
 ):
     output_dir = Path(output_dir)
     output_dir.mkdir(exist_ok=True)
@@ -33,7 +33,7 @@ def save_train_round(
     round_id,
     client_id,
     sample_ids,
-    output_dir="metrics_logs",
+    output_dir="outputs",
 ):
     output_dir = Path(output_dir)
     output_dir.mkdir(exist_ok=True)
