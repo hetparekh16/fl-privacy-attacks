@@ -1,10 +1,12 @@
 from flwr.common import Context, ndarrays_to_parameters, parameters_to_ndarrays
 from flwr.server import ServerApp, ServerAppComponents, ServerConfig
-from flpa.task import CNN, get_weights
+from flpa.task import CNN, get_weights, set_weights
 from flwr.server.strategy import FedAvg
 import hashlib
 from flpa.utils import save_eval_round, save_train_round
 from datetime import datetime
+import pathlib
+import torch
 
 
 def weighted_average(metrics_list):
@@ -83,6 +85,16 @@ class LoggingFedAvg(FedAvg):
             print(
                 f"✅ This is the Aggregated weights hash: {agg_hash} for round {server_round}"
             )
+
+            # Remove the hardcoded server_round value
+            # and replace it with the server_round variable
+            if server_round == 5:
+                print("💾 Saving final global model...")
+                model = CNN()
+                set_weights(model, agg_weights)
+                pathlib.Path("outputs").mkdir(exist_ok=True)
+                torch.save(model.state_dict(), "outputs/global_model/global_model.pt")
+                print("✅ Global model saved to outputs/global_model/global_model.pt")
 
         return aggregated_parameters, metrics
 
