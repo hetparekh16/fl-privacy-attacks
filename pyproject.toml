@@ -19,6 +19,7 @@ dependencies = [
     "torchvision>=0.21.0",
     "multidict>=6.3.3",
     "ipykernel>=6.29.5",
+    "pandas>=2.2.3",
 ]
 
 [build-system]
@@ -44,9 +45,10 @@ serverapp = "flpa.server_app:app"
 clientapp = "flpa.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 3
+num-server-rounds = 5
 fraction-fit = 0.5
-local-epochs = 5
+local-epochs = 2
+learning-rate = 0.001
 
 
 [tool.flwr.federations]
