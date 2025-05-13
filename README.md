@@ -95,6 +95,10 @@ The visualization dashboard provides:
     - [`src/flpa/attacks/run_attack_model.py`](src/flpa/attacks/run_attack_model.py) - Run the attack pipeline
 - [`apps`](apps) - Visualization applications
 - [`outputs`](outputs) - Generated outputs (models, logs, metrics)
+- [`data`](data) - CIFAR-10 dataset
+- [`pyproject.toml`](pyproject.toml) - Project configuration and dependencies
+- [`README.md`](README.md) - Project documentation
+- [`uv.lock`](uv.lock) - Dependency lock file
 
 ## Configuration
 
