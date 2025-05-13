@@ -7,6 +7,7 @@ from flpa.utils import save_eval_round, save_train_round
 from datetime import datetime
 import pathlib
 import torch
+from flpa.utils import clear_output_directory
 
 
 def weighted_average(metrics_list):
@@ -142,6 +143,9 @@ class LoggingFedAvg(FedAvg):
 
 
 def server_fn(context: Context):
+
+    clear_output_directory()
+
     num_rounds = context.run_config["num-server-rounds"]
     fraction_fit = context.run_config["fraction-fit"]
 
