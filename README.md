@@ -71,7 +71,6 @@ This executes three sequential steps:
 ### Step 4: Visualize results with Streamlit
 
 ```bash
-cd apps
 uv run streamlit run app/streamlit_app.py
 ```
 
