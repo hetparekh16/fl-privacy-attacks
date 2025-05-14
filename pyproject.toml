@@ -46,9 +46,9 @@ serverapp = "flpa.server_app:app"
 clientapp = "flpa.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 10
+num-server-rounds = 12
 fraction-fit = 0.5
-local-epochs = 12
+local-epochs = 14
 learning-rate = 0.001
 
 
@@ -56,9 +56,9 @@ learning-rate = 0.001
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 10
+options.num-supernodes = 12
 
 [tool.flwr.federations.local-simulation-gpu]
-options.num-supernodes = 10
+options.num-supernodes = 12
 options.backend.client-resources.num-cpus = 2 # each ClientApp assumes to use 2CPUs
 options.backend.client-resources.num-gpus = 0.2 # at most 5 ClientApp will run in a given GPU
