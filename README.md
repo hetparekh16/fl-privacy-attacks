@@ -71,7 +71,7 @@ This executes three sequential steps:
 ### Step 4: Visualize results with Streamlit
 
 ```bash
-uv run streamlit run app/streamlit_app.py
+uv run streamlit run apps/streamlit_app.py
 ```
 
 The visualization dashboard provides:
