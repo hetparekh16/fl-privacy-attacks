@@ -38,9 +38,6 @@ def save_train_round(
     output_dir = Path(output_dir)
     output_dir.mkdir(exist_ok=True)
 
-    # TODO: Think about some way so that we can save all the information of each round in a df before we dump it into a parquet file
-    # because we have to maunally delete all the files in the outputs folder
-
     # Create sample_id_logs directory if it doesn't exist
     sample_id_logs_dir = output_dir / "sample_id_logs"
     sample_id_logs_dir.mkdir(exist_ok=True)
