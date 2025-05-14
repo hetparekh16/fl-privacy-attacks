@@ -42,14 +42,10 @@ def save_train_round(
     sample_id_logs_dir = output_dir / "sample_id_logs"
     sample_id_logs_dir.mkdir(exist_ok=True)
 
-    print(
-        f"Client {client_id} used the sample_ids: {len(sample_ids)} for training before converting it into a list in utils.py"
-    )
-
     sample_ids_list = [int(x) for x in sample_ids.split(",")]
 
     print(
-        f"Client {client_id} used the sample_ids: {len(sample_ids)} for training after converting it into a list in utils.py"
+        f"Client {client_id} used the sample_ids: {len(sample_ids_list)} for training after converting it into a list in utils.py"
     )
 
     row = {
@@ -58,10 +54,6 @@ def save_train_round(
         "sample_ids": sample_ids_list,
     }
     df = pd.DataFrame([row])
-
-    print(
-        f"The datatype of sample_ids is of type {type(sample_ids_list)} and has length {len(sample_ids_list)}"
-    )
 
     # Fixed path without leading slash
     parquet_path = sample_id_logs_dir / f"round_{round_id}_client_train.parquet"

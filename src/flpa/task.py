@@ -121,7 +121,7 @@ def train(net, trainloader, epochs, device):
 
     avg_trainloss = running_loss / len(trainloader)
     print(
-        f"(1) Number of samples used for training this client: {len(sample_ids)} in task.py"
+        f"Number of samples used for training this client: {len(sample_ids)} in task.py"
     )
     return avg_trainloss, sample_ids
 

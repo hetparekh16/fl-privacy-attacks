@@ -58,11 +58,6 @@ class LoggingFedAvg(FedAvg):
             weight_hash = hashlib.sha256(flat_weights).hexdigest()[:8]
             print(f"  ↳ Client {client.cid} returned weights hash: {weight_hash}")
 
-            # sample_ids = fit_res.metrics.get("sample_ids")
-
-            print(
-                f"  ↳ Client {client.cid} used the sample_ids: {len(fit_res.metrics.get('sample_ids'))} for training before sending it to saving function in  server_app. py"  # type: ignore
-            )
             save_train_round(
                 round_id=server_round,
                 client_id=client.cid,
