@@ -48,7 +48,7 @@ This will download the CIFAR-10 dataset to the [`data`](data) directory and prep
 ### Step 2: Run the federated learning simulation
 
 ```bash
-uv run flwr run
+uv run flwr run . local-simulation-gpu
 ```
 
 This command:
