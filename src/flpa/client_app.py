@@ -13,7 +13,7 @@ class FlowerClient(NumPyClient):
         self.trainloader = trainloader
         self.valloader = valloader
         self.local_epochs = local_epochs
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.net.to(self.device)
         self.cid = cid
 
