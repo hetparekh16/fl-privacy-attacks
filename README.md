@@ -52,10 +52,7 @@ uv run flwr run . local-simulation-gpu
 ```
 
 This command:
-- Initializes a federated learning server
-- Creates 10 simulated clients
-- Trains the model for 6 rounds with 50% client participation per round
-- Saves training metrics and the global model
+- Initializes a federated learning server. Creates simulated clients. Trains the model for multiple rounds with 50% client participation per round. Saves training metrics and the global model
 
 ### Step 3: Run the privacy attack pipeline
 
@@ -98,11 +95,3 @@ The visualization dashboard provides:
 - [`pyproject.toml`](pyproject.toml) - Project configuration and dependencies
 - [`README.md`](README.md) - Project documentation
 - [`uv.lock`](uv.lock) - Dependency lock file
-
-## Configuration
-
-The federated learning system is configured in [`pyproject.toml`](pyproject.toml) with:
-- 6 training rounds
-- 50% client participation per round
-- 2 local epochs per client
-- 10 simulated clients
