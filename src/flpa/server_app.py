@@ -7,6 +7,7 @@ from flpa.utils import save_eval_round, save_train_round
 from datetime import datetime
 import pathlib
 import torch
+from flpa.utils import clear_output_directory
 
 
 def weighted_average(metrics_list):
@@ -25,6 +26,11 @@ def weighted_average(metrics_list):
 
 
 class LoggingFedAvg(FedAvg):
+
+    def __init__(self, num_rounds: int, **kwargs):
+        super().__init__(**kwargs)
+        self.num_rounds = num_rounds
+
 
     def configure_fit(self, server_round, parameters, client_manager):
         client_instructions = super().configure_fit(
@@ -52,11 +58,6 @@ class LoggingFedAvg(FedAvg):
             weight_hash = hashlib.sha256(flat_weights).hexdigest()[:8]
             print(f"  ↳ Client {client.cid} returned weights hash: {weight_hash}")
 
-            # sample_ids = fit_res.metrics.get("sample_ids")
-
-            print(
-                f"  ↳ Client {client.cid} used the sample_ids: {len(fit_res.metrics.get('sample_ids'))} for training before sending it to saving function in  server_app. py"  # type: ignore
-            )
             save_train_round(
                 round_id=server_round,
                 client_id=client.cid,
@@ -88,7 +89,7 @@ class LoggingFedAvg(FedAvg):
 
             # Remove the hardcoded server_round value
             # and replace it with the server_round variable
-            if server_round == 5:
+            if server_round == self.num_rounds:
                 print("💾 Saving final global model...")
                 model = CNN()
                 set_weights(model, agg_weights)
@@ -142,6 +143,9 @@ class LoggingFedAvg(FedAvg):
 
 
 def server_fn(context: Context):
+
+    clear_output_directory()
+
     num_rounds = context.run_config["num-server-rounds"]
     fraction_fit = context.run_config["fraction-fit"]
 
@@ -149,6 +153,7 @@ def server_fn(context: Context):
     parameters = ndarrays_to_parameters(ndarrays)
 
     strategy = LoggingFedAvg(
+        num_rounds=num_rounds, # type: ignore
         fraction_fit=fraction_fit,  # type: ignore
         fraction_evaluate=1.0,
         min_available_clients=2,

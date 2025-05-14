@@ -13,7 +13,7 @@ class FlowerClient(NumPyClient):
         self.trainloader = trainloader
         self.valloader = valloader
         self.local_epochs = local_epochs
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.net.to(self.device)
         self.cid = cid
 
@@ -26,15 +26,7 @@ class FlowerClient(NumPyClient):
             self.device,
         )
 
-        print(
-            f"Client {self.cid} used the sample_ids: {len(sample_ids) } for training before converting it into a string in client_app.py"
-        )
-
         sample_ids_str = ",".join(map(str, sample_ids))
-
-        print(
-            f"Client {self.cid} used the sample_ids: {len(sample_ids_str)} for training after converting it into a string in client_app.py"
-        )
 
         return (
             get_weights(self.net),

@@ -38,20 +38,14 @@ def save_train_round(
     output_dir = Path(output_dir)
     output_dir.mkdir(exist_ok=True)
 
-    # TODO: Think about some way so that we can save all the information of each round in a df before we dump it into a parquet file
-
     # Create sample_id_logs directory if it doesn't exist
     sample_id_logs_dir = output_dir / "sample_id_logs"
     sample_id_logs_dir.mkdir(exist_ok=True)
 
-    print(
-        f"Client {client_id} used the sample_ids: {len(sample_ids)} for training before converting it into a list in utils.py"
-    )
-
     sample_ids_list = [int(x) for x in sample_ids.split(",")]
 
     print(
-        f"Client {client_id} used the sample_ids: {len(sample_ids)} for training after converting it into a list in utils.py"
+        f"Client {client_id} used the sample_ids: {len(sample_ids_list)} for training after converting it into a list in utils.py"
     )
 
     row = {
@@ -60,10 +54,6 @@ def save_train_round(
         "sample_ids": sample_ids_list,
     }
     df = pd.DataFrame([row])
-
-    print(
-        f"The datatype of sample_ids is of type {type(sample_ids_list)} and has length {len(sample_ids_list)}"
-    )
 
     # Fixed path without leading slash
     parquet_path = sample_id_logs_dir / f"round_{round_id}_client_train.parquet"
@@ -74,3 +64,29 @@ def save_train_round(
 
     df.to_parquet(parquet_path)
     print(f"📦 Saved round {round_id} training metadata to {output_dir}")
+
+
+def clear_output_directory(output_dir: Union[str, Path] = "outputs"):
+    """Clear all contents of the output directory for a fresh simulation run."""
+    output_dir = Path(output_dir)
+    import shutil
+
+    if output_dir.exists():
+        print(f"🧹 Cleaning output directory: {output_dir}")
+        # Remove all contents recursively
+        for item in output_dir.glob("*"):
+            if item.is_file():
+                item.unlink()
+            elif item.is_dir():
+                shutil.rmtree(item)
+
+    # Create necessary subdirectories
+    (output_dir / "client_logs").mkdir(parents=True, exist_ok=True)
+    (output_dir / "aggregated_logs").mkdir(parents=True, exist_ok=True)
+    (output_dir / "sample_id_logs").mkdir(parents=True, exist_ok=True)
+    (output_dir / "global_model").mkdir(parents=True, exist_ok=True)
+    (output_dir / "attacks").mkdir(parents=True, exist_ok=True)
+    (output_dir / "attacks/models").mkdir(parents=True, exist_ok=True)
+    (output_dir / "attacks/metrics").mkdir(parents=True, exist_ok=True)
+
+    print(f"✅ Output directory is ready for fresh metrics")

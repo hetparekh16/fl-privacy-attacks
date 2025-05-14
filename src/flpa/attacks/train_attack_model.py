@@ -9,6 +9,7 @@ from sklearn.metrics import (
     f1_score,
     roc_auc_score,
     confusion_matrix,
+    roc_curve,
 )
 from sklearn.model_selection import train_test_split
 import joblib
@@ -38,12 +39,14 @@ MODELS = {
 def evaluate_model(name, model, X_test, y_test):
     y_pred = model.predict(X_test)
     y_prob = model.predict_proba(X_test)[:, 1]
+
     acc = accuracy_score(y_test, y_pred)
     prec = precision_score(y_test, y_pred)
     rec = recall_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred)
     auc = roc_auc_score(y_test, y_prob)
     cm = confusion_matrix(y_test, y_pred)
+    fpr, tpr, _ = roc_curve(y_test, y_prob)
 
     print(f"\n📊 {name.upper()} Evaluation:")
     print(f"Accuracy:  {acc:.4f}")
@@ -64,6 +67,8 @@ def evaluate_model(name, model, X_test, y_test):
         "false_pos": cm[0][1],
         "true_neg": cm[0][0],
         "false_neg": cm[1][0],
+        "fpr": [float(x) for x in fpr],
+        "tpr": [float(x) for x in tpr],
     }
 
 

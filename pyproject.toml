@@ -15,11 +15,12 @@ dependencies = [
     "polars>=1.29.0",
     "pydantic>=2.11.3",
     "scikit-learn>=1.6.1",
-    "torch>=2.6.0",
-    "torchvision>=0.21.0",
-    "multidict>=6.3.3",
+    "torch>=2.7.0",
+    "torchvision>=0.22.0",
+    "multidict>=6.4.3",
     "ipykernel>=6.29.5",
     "pandas>=2.2.3",
+    "streamlit>=1.45.1",
 ]
 
 [build-system]
@@ -45,9 +46,9 @@ serverapp = "flpa.server_app:app"
 clientapp = "flpa.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 5
+num-server-rounds = 12
 fraction-fit = 0.5
-local-epochs = 2
+local-epochs = 14
 learning-rate = 0.001
 
 
@@ -55,4 +56,9 @@ learning-rate = 0.001
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 10
+options.num-supernodes = 12
+
+[tool.flwr.federations.local-simulation-gpu]
+options.num-supernodes = 12
+options.backend.client-resources.num-cpus = 2 # each ClientApp assumes to use 2CPUs
+options.backend.client-resources.num-gpus = 0.2 # at most 5 ClientApp will run in a given GPU
