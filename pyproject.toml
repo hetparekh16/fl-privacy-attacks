@@ -46,9 +46,9 @@ serverapp = "flpa.server_app:app"
 clientapp = "flpa.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 12
+num-server-rounds = 22
 fraction-fit = 0.5
-local-epochs = 14
+local-epochs = 50
 learning-rate = 0.001
 
 
