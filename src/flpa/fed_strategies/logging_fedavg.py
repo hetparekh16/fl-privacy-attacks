@@ -46,3 +46,15 @@ class LoggingFedAvg(BaseLoggingStrategy, FedAvg):
         save_eval_round(server_round, client_logs, agg_log)
 
         return agg_loss, agg_metrics
+    
+
+# How to use this in server_app.py:
+
+    # strategy = LoggingFedAdam(
+    #     num_rounds=num_rounds, # type: ignore
+    #     fraction_fit=fraction_fit,  # type: ignore
+    #     fraction_evaluate=1.0,
+    #     min_available_clients=2,
+    #     initial_parameters=parameters,
+    #     evaluate_metrics_aggregation_fn=weighted_average,  # type: ignore
+    # )
