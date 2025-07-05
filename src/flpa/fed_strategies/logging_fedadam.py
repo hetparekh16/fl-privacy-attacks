@@ -49,19 +49,13 @@ class LoggingFedAdam(BaseLoggingStrategy, FedAdam):
     
 
 
-#     How to use this in server_app.py:
-#     strategy = LoggingFedAdam(
-#     Arguments for your LoggingMixin
-#     num_rounds=num_rounds,
-
-#     # Required arguments for the FedAdam optimizer
-#     eta=0.1,
+# strategy = LoggingFedAdam(
+#     num_rounds=num_rounds, # type: ignore
+#     eta=0.01,
 #     eta_l=0.1,
 #     beta_1=0.9,
 #     beta_2=0.999,
 #     tau=1e-9,
-
-#     # General strategy arguments
 #     fraction_fit=fraction_fit,
 #     fraction_evaluate=1.0,
 #     min_available_clients=2,
