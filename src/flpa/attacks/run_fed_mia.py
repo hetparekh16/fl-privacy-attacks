@@ -4,7 +4,7 @@ import pandas as pd
 from tqdm import tqdm
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
-from flpa.task import CNN
+from flpa.models import CNN, ResNet
 from flpa.attacks.fedmia_attack import compute_gradient, fedmia_score
 from pathlib import Path
 import random
