@@ -50,7 +50,7 @@ class LoggingFedAvg(BaseLoggingStrategy, FedAvg):
 
 # How to use this in server_app.py:
 
-    # strategy = LoggingFedAdam(
+    # strategy = LoggingFedAvg(
     #     num_rounds=num_rounds, # type: ignore = 14
     #     fraction_fit=fraction_fit,  # type: ignore
     #     fraction_evaluate=1.0,
