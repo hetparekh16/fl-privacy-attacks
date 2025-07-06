@@ -50,7 +50,7 @@ class LoggingFedAdam(BaseLoggingStrategy, FedAdam):
 
 
 # strategy = LoggingFedAdam(
-#     num_rounds=num_rounds, # type: ignore
+#     num_rounds=num_rounds, # type: ignore = 40
 #     eta=0.01,
 #     eta_l=0.1,
 #     beta_1=0.9,
