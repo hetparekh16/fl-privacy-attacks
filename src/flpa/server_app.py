@@ -31,28 +31,28 @@ def server_fn(context: Context):
     ndarrays = get_weights(ResNet())
     parameters = ndarrays_to_parameters(ndarrays)
 
-    # strategy = LoggingFedAvg(
-    #     num_rounds=num_rounds, # type: ignore = 14
-    #     fraction_fit=fraction_fit,  # type: ignore
-    #     fraction_evaluate=1.0,
-    #     min_available_clients=2,
-    #     initial_parameters=parameters,
-    #     evaluate_metrics_aggregation_fn=weighted_average,  # type: ignore
-    # )
-
-    strategy = LoggingFedAdam(
-        num_rounds=num_rounds, # type: ignore = 40
-        eta=0.01,
-        eta_l=0.1,
-        beta_1=0.9,
-        beta_2=0.999,
-        tau=1e-9,
-        fraction_fit=fraction_fit,
+    strategy = LoggingFedAvg(
+        num_rounds=num_rounds, # type: ignore = 14
+        fraction_fit=fraction_fit,  # type: ignore
         fraction_evaluate=1.0,
         min_available_clients=2,
         initial_parameters=parameters,
-        evaluate_metrics_aggregation_fn=weighted_average,
+        evaluate_metrics_aggregation_fn=weighted_average,  # type: ignore
     )
+
+    # strategy = LoggingFedAdam(
+    #     num_rounds=num_rounds, # type: ignore = 40
+    #     eta=0.01,
+    #     eta_l=0.1,
+    #     beta_1=0.9,
+    #     beta_2=0.999,
+    #     tau=1e-9,
+    #     fraction_fit=fraction_fit,
+    #     fraction_evaluate=1.0,
+    #     min_available_clients=2,
+    #     initial_parameters=parameters,
+    #     evaluate_metrics_aggregation_fn=weighted_average,
+    # )
 
     config = ServerConfig(num_rounds=num_rounds)  # type: ignore
 
