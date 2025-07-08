@@ -46,9 +46,9 @@ serverapp = "flpa.server_app:app"
 clientapp = "flpa.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 10
+num-server-rounds = 50 # 25 if FedAdam
 fraction-fit = 0.5
-local-epochs = 16
+local-epochs = 4
 learning-rate = 0.001
 
 
