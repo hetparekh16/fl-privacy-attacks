@@ -13,7 +13,7 @@ from flpa.models import CNN, ResNet
 DATA_ROOT = "./data"
 MODEL_PATH = "outputs/global_model/global_model.pt"
 MEMBERSHIP_DATASET = "outputs/attacks/membership_dataset.parquet"
-OUTPUT_PATH = "outputs/attacks/attack_features.parquet"
+OUTPUT_PATH = "outputs/attacks/posterior/attack_features.parquet"
 SEED = 42
 BATCH_SIZE = 128
 

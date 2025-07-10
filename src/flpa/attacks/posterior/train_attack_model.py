@@ -16,9 +16,9 @@ import joblib
 from pathlib import Path
 
 # Paths
-FEATURES_PATH = "outputs/attacks/attack_features.parquet"
-MODEL_DIR = Path("outputs/attacks/models")
-METRICS_DIR = Path("outputs/attacks/metrics")
+FEATURES_PATH = "outputs/attacks/posterior/attack_features.parquet"
+MODEL_DIR = Path("outputs/attacks/posterior/models")
+METRICS_DIR = Path("outputs/attacks/posterior/metrics")
 
 # Config
 TEST_SIZE = 0.2
