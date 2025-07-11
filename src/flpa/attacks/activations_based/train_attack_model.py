@@ -26,7 +26,7 @@ RANDOM_STATE = 42
 FEATURE_COLUMNS = [f"act_{j}" for j in range(512)]  # ✅ 512-dim activation vector
 
 MODELS = {
-    "logistic": LogisticRegression(max_iter=1000),
+    "logistic": LogisticRegression(),
     "random_forest": RandomForestClassifier(
         n_estimators=100, max_depth=10, random_state=RANDOM_STATE
     ),
