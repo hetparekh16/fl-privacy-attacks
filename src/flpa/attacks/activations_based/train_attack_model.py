@@ -16,25 +16,24 @@ import joblib
 from pathlib import Path
 
 # Paths
-FEATURES_PATH = "outputs/attacks/attack_features.parquet"
-MODEL_DIR = Path("outputs/attacks/models")
-METRICS_DIR = Path("outputs/attacks/metrics")
+FEATURES_PATH = "outputs/attacks/activation_based/activation_attack_features.parquet"
+MODEL_DIR = Path("outputs/attacks/activation_based/models")
+METRICS_DIR = Path("outputs/attacks/activation_based/metrics")
 
 # Config
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
-POSTERIOR_FEATURES = [f"posterior_{i}" for i in range(10)]
+FEATURE_COLUMNS = [f"act_{j}" for j in range(512)]  # ✅ 512-dim activation vector
 
 MODELS = {
-    "logistic": LogisticRegression(max_iter=1000),
+    "logistic": LogisticRegression(),
     "random_forest": RandomForestClassifier(
         n_estimators=100, max_depth=10, random_state=RANDOM_STATE
     ),
     "mlp": MLPClassifier(
-        hidden_layer_sizes=(64, 32), max_iter=1000, random_state=RANDOM_STATE
+        hidden_layer_sizes=(256, 128), max_iter=1000, random_state=RANDOM_STATE
     ),
 }
-
 
 def evaluate_model(name, model, X_test, y_test):
     y_pred = model.predict(X_test)
@@ -71,20 +70,17 @@ def evaluate_model(name, model, X_test, y_test):
         "tpr": [float(x) for x in tpr],
     }
 
-
 def train_all_attack_models():
     df = pd.read_parquet(FEATURES_PATH)
-    X = df[POSTERIOR_FEATURES].values
+    X = df[FEATURE_COLUMNS].values
     y = df["member"].values
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y  # type: ignore
+        X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y # type: ignore
     )
 
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     METRICS_DIR.mkdir(parents=True, exist_ok=True)
-
-    all_metrics = []
 
     for name, model in MODELS.items():
         print(f"\n🚀 Training {name.upper()}...")
@@ -97,12 +93,9 @@ def train_all_attack_models():
 
         # Evaluate and save metrics
         metrics = evaluate_model(name, model, X_test, y_test)
-        all_metrics.append(metrics)
-
         metrics_df = pd.DataFrame([metrics])
         metrics_df.to_parquet(METRICS_DIR / f"{name}_metrics.parquet", index=False)
         print(f"📦 Saved metrics to: {METRICS_DIR}/{name}_metrics.parquet")
-
 
 if __name__ == "__main__":
     train_all_attack_models()

@@ -2,55 +2,12 @@ from collections import OrderedDict
 from sklearn.metrics import precision_score, recall_score, f1_score
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import os
 from torch.utils.data import Subset
 import torchvision
 import random
 
-
-class CNN(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv_layers = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, padding=1),  # (32x32x3) → (32x32x32)
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Conv2d(32, 32, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),  # (32x32x32) → (16x16x32)
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Conv2d(64, 64, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),  # (16x16x64) → (8x8x64)
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Conv2d(128, 128, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),  # (8x8x128) → (4x4x128)
-        )
-
-        self.fc_layers = nn.Sequential(
-            nn.Flatten(),
-            nn.Dropout(0.2),
-            nn.Linear(4 * 4 * 128, 1024),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(1024, 512),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(512, 10),
-        )
-
-    def forward(self, x):
-        x = self.conv_layers(x)
-        x = self.fc_layers(x)
-        return x
 
 
 def load_data(partition_id: int, num_partitions: int):
