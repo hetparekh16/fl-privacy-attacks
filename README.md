@@ -1,35 +1,45 @@
 # Federated Learning Privacy Attacks (FLPA)
 
-This project demonstrates privacy vulnerabilities in federated learning systems through membership inference attacks. It includes a complete federated learning workflow with attack implementation and visualization tools.
+This project demonstrates privacy vulnerabilities in federated learning (FL) systems through systematic membership inference attacks (MIAs). It includes a complete modular framework for federated training, logging, attack evaluation, and visualization.
 
 ## Overview
 
 The project implements:
-- Federated learning simulation with CIFAR-10 dataset (downloaded via torchvision) using [Flower](https://flower.dev/)
-- Membership inference attacks on the global model
-- Comprehensive attack evaluation metrics
-- Interactive visualization dashboard
+- Federated learning simulation using [Flower](https://flower.dev/) with the CIFAR-10 dataset
+- Support for multiple model architectures:
+  - Shallow CNN (baseline)
+  - Deep ResNet-18 model (achieving ~80% accuracy)
+- Support for multiple FL strategies:
+  - FedAvg
+  - FedAdam
+- Comprehensive membership inference attacks:
+  - Posterior-based (black-box)
+  - Gradient-based (white-box)
+  - Activation-based (white-box)
+  - Fusion attack (posterior + gradient)
+- End-to-end experiment reproducibility with deterministic partitioning and ground-truth membership tracking
+- Metrics logging and attack result visualization
 
 ## Prerequisites
 
-- [uv](https://github.com/astral-sh/uv) - Fast Python package installer and virtual environment manager
+- [uv](https://github.com/astral-sh/uv) — Fast Python package installer and virtual environment manager
 
 ## Installation
 
-### 1. Install uv (Linux)
+### 1️⃣ Install `uv` (Linux)
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-### 2. Clone the repository
+### 2️⃣ Clone the repository
 
 ```bash
 git clone git@github.com:hetparekh16/fl-privacy-attacks.git
 cd fl-privacy-attacks
 ```
 
-### 3. Install dependencies
+### 3️⃣ Install dependencies
 
 ```bash
 uv sync
@@ -37,61 +47,81 @@ uv sync
 
 ## Usage
 
-### Step 1: Download the CIFAR-10 dataset
+### Step 1: Prepare CIFAR-10 dataset
 
 ```bash
 uv run src/flpa/dataset.py
 ```
 
-This will download the CIFAR-10 dataset to the [`data`](data) directory and prepare it for the federated learning simulation.
+This downloads CIFAR-10 to the `data/` directory and prepares deterministic client partitions.
 
-### Step 2: Run the federated learning simulation
+### Step 2: Run federated training
 
 ```bash
 uv run flwr run . local-simulation-gpu
 ```
 
-This command:
-- Initializes a federated learning server. Creates simulated clients. Trains the model for multiple rounds with 50% client participation per round. Saves training metrics and the global model
+This will:
+- Train either a shallow CNN or ResNet-18 (controlled via config)
+- Select optimizer strategy (FedAvg or FedAdam)
+- Log training metrics and save the final global model at `outputs/global_model/`
 
-### Step 3: Run the privacy attack pipeline
+### Step 3: Run membership inference attacks
 
 ```bash
 uv run src/flpa/attacks/run_attack_pipeline.py
 ```
 
-This executes three sequential steps:
-1. Building a membership dataset (determining which samples were used in training)
-2. Extracting posterior probabilities from the global model
-3. Training attack models (logistic regression, random forest, MLP) to infer membership
+This pipeline executes:
+1. Build membership dataset from logged sample IDs
+2. Extract posteriors, gradients, and activations from final model
+3. Train and evaluate attack models (Logistic Regression, Random Forest, MLP)
 
-### Step 4: Visualize results with Streamlit
+Attack results (metrics + models) are stored under `outputs/attacks/`.
+
+### Step 4: Visualize results (optional)
 
 ```bash
 uv run streamlit run apps/streamlit_app.py
 ```
 
-The visualization dashboard provides:
-- Per-client training metrics visualization
-- Global model performance tracking
-- Attack effectiveness evaluation with ROC curves and confusion matrices
+Features:
+- Per-client training curves
+- Global validation accuracy and loss
+- Attack effectiveness (ROC curves, confusion matrices, metrics)
 
 ## Project Structure
 
-- [`src/flpa`](src/flpa) - Core implementation
-  - [`src/flpa/client_app.py`](src/flpa/client_app.py) - Flower client implementation
-  - [`src/flpa/server_app.py`](src/flpa/server_app.py) - Flower server implementation
-  - [`src/flpa/task.py`](src/flpa/task.py) - CNN model and training logic
-  - [`src/flpa/dataset.py`](src/flpa/dataset.py) - CIFAR-10 dataset preparation
-  - [`src/flpa/utils.py`](src/flpa/utils.py) - Utility functions for logging and metrics
-  - `attacks/` - Attack implementation
-    - [`src/flpa/attacks/build_membership_dataset.py`](src/flpa/attacks/build_membership_dataset.py) - Creates labeled member/non-member dataset
-    - [`src/flpa/attacks/extract_posteriors.py`](src/flpa/attacks/extract_posteriors.py) - Extracts model predictions
-    - [`src/flpa/attacks/train_attack_model.py`](src/flpa/attacks/train_attack_model.py) - Trains attack classifiers
-    - [`src/flpa/attacks/run_attack_model.py`](src/flpa/attacks/run_attack_model.py) - Run the attack pipeline
-- [`apps`](apps) - Visualization applications
-- [`outputs`](outputs) - Generated outputs (models, logs, metrics)
-- [`data`](data) - CIFAR-10 dataset
-- [`pyproject.toml`](pyproject.toml) - Project configuration and dependencies
-- [`README.md`](README.md) - Project documentation
-- [`uv.lock`](uv.lock) - Dependency lock file
+```
+├── src/flpa
+│   ├── client_app.py         # Flower client
+│   ├── server_app.py         # Flower server
+│   ├── dataset.py            # CIFAR-10 dataset preparation
+│   ├── task.py               # Model and training logic (CNN, ResNet-18)
+│   ├── fed_strategies/       # LoggingFedAvg, LoggingFedAdam
+│   ├── attacks/
+│   │   ├── posterior/        # Posterior-based MIA
+│   │   ├── gradient_based/   # Gradient-based MIA
+│   │   ├── activation_based/ # Activation-based MIA
+│   │   ├── fusion_posterior_and_gradient/ # Fusion attack
+│   │   └── base/             # Membership dataset construction
+│   └── utils.py              # Utilities (logging, helpers)
+├── apps                      # Streamlit dashboard
+├── data                      # CIFAR-10 dataset storage
+├── outputs                   # All generated logs, models, metrics
+├── pyproject.toml            # Dependency specification
+├── uv.lock                   # Dependency lock file
+└── README.md
+```
+
+## Key Features
+
+📦 Modular design for attack extensibility
+
+🔒 Insider and outsider threat simulation (black-box and white-box attacks)
+
+📈 Robust metrics logging and visualization
+
+🖥️ GPU acceleration ready
+
+🔁 Fully reproducible experiments with deterministic partitioning and ground-truth membership tracking
