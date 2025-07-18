@@ -3,7 +3,7 @@ from torchvision import transforms
 
 
 def prepare_cifar10():
-    print("⬇️  CIFAR-10 not found. Downloading...")
+    print("⬇CIFAR-10 not found. Downloading...")
 
     transform = transforms.ToTensor()
 
@@ -15,7 +15,7 @@ def prepare_cifar10():
         root="./data", train=False, download=True, transform=transform
     )
 
-    print("✅ CIFAR-10 downloaded successfully.")
+    print("CIFAR-10 downloaded successfully.")
 
 
 if __name__ == "__main__":

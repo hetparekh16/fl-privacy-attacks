@@ -36,7 +36,7 @@ def build_membership_dataset(save: bool = True) -> pd.DataFrame:
             all_member_ids.update(sample_list)
 
     member_ids = list(all_member_ids)
-    print(f"✅ Found {len(member_ids)} unique member sample_ids from logs")
+    print(f"Found {len(member_ids)} unique member sample_ids from logs")
 
     # Create non-member list from remaining indices
     all_possible = set(range(train_samples))
@@ -58,7 +58,7 @@ def build_membership_dataset(save: bool = True) -> pd.DataFrame:
     if save:
         OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
         membership_df.to_parquet(OUTPUT_PATH, index=False)
-        print(f"📦 Saved membership dataset to: {OUTPUT_PATH.resolve()}")
+        print(f"Saved membership dataset to: {OUTPUT_PATH.resolve()}")
 
     return membership_df
 

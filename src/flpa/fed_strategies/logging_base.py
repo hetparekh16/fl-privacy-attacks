@@ -32,7 +32,7 @@ class BaseLoggingStrategy:
     def process_fit_results(self, server_round, results):
         """Process and log training results from clients."""
         selected_clients = [client.cid for client, _ in results]
-        print(f"\n🔁 [Round {server_round}] Selected clients: {selected_clients}")
+        print(f"\n[Round {server_round}] Selected clients: {selected_clients}")
         print("Now clients will train their models and return the weights...")
 
         client_logs = []
@@ -73,17 +73,17 @@ class BaseLoggingStrategy:
 
             # Save final model
             if server_round == self.num_rounds:
-                print("💾 Saving final global model...")
+                print("Saving final global model...")
                 model = ResNet()
                 set_weights(model, agg_weights)
                 pathlib.Path("outputs/global_model").mkdir(parents=True, exist_ok=True)
                 torch.save(model.state_dict(), "outputs/global_model/global_model.pt")
-                print("✅ Global model saved to outputs/global_model/global_model.pt")
+                print("Global model saved to outputs/global_model/global_model.pt")
 
     def process_evaluate_results(self, server_round, results):
         """Process and log evaluation results from clients."""
         print("Now we will send the aggregated model to clients for evaluation...")
-        print(f"\n📊 [Round {server_round}] Evaluation results:")
+        print(f"\n[Round {server_round}] Evaluation results:")
 
         # Prepare data for logging
         client_logs = []
@@ -106,14 +106,14 @@ class BaseLoggingStrategy:
 
     def log_aggregated_eval(self, server_round, agg_loss, agg_metrics):
         """Log aggregated evaluation metrics."""
-        print(f"✅ [Round {server_round}] Aggregated eval loss: {agg_loss:.4f}")
+        print(f"[Round {server_round}] Aggregated eval loss: {agg_loss:.4f}")
         agg_log = {
             "round_id": server_round,
             "loss": agg_loss,
             "timestamp": datetime.now(),
         }
         for k, v in agg_metrics.items():
-            print(f"✅ [Round {server_round}] Aggregated eval {k}: {v:.4f}")
+            print(f"[Round {server_round}] Aggregated eval {k}: {v:.4f}")
             agg_log[k] = v
             
         return agg_log

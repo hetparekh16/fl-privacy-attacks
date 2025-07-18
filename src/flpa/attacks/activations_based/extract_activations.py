@@ -22,7 +22,7 @@ def hook_fn(module, input, output):
 
 def extract_activations():
     df = pd.read_parquet(MEMBERSHIP_DATASET)
-    print(f"📥 Loaded membership dataset: {df.shape}")
+    print(f"Loaded membership dataset: {df.shape}")
 
     transform = transforms.Compose([
         transforms.ToTensor(),
@@ -40,7 +40,7 @@ def extract_activations():
     model.eval()
 
     # Register hook on penultimate layer (ResNet18: before final fc layer)
-    penultimate_layer = model.avgpool  # ✅ Or adjust if needed (check architecture)
+    penultimate_layer = model.avgpool  # Or adjust if needed (check architecture)
     hook_handle = penultimate_layer.register_forward_hook(hook_fn)
 
     features_list = []
@@ -74,7 +74,7 @@ def extract_activations():
     out_df = pd.DataFrame(features_list)
     Path(OUTPUT_PATH).parent.mkdir(parents=True, exist_ok=True)
     out_df.to_parquet(OUTPUT_PATH, index=False)
-    print(f"✅ Saved activation features dataset: {OUTPUT_PATH}")
+    print(f"Saved activation features dataset: {OUTPUT_PATH}")
 
     hook_handle.remove()
 

@@ -16,7 +16,7 @@ SEED = 42
 
 def extract_gradients():
     df = pd.read_parquet(MEMBERSHIP_DATASET)
-    print(f"📥 Loaded membership dataset: {df.shape}")
+    print(f"Loaded membership dataset: {df.shape}")
 
     transform = transforms.Compose([
         transforms.ToTensor(),
@@ -63,7 +63,7 @@ def extract_gradients():
     out_df = pd.DataFrame(gradient_features)
     Path(OUTPUT_PATH).parent.mkdir(parents=True, exist_ok=True)
     out_df.to_parquet(OUTPUT_PATH, index=False)
-    print(f"✅ Saved gradient attack features: {OUTPUT_PATH}")
+    print(f"Saved gradient attack features: {OUTPUT_PATH}")
 
 if __name__ == "__main__":
     extract_gradients()

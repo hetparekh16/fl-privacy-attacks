@@ -85,19 +85,19 @@ def train_all_attack_models():
     METRICS_DIR.mkdir(parents=True, exist_ok=True)
 
     for name, model in MODELS.items():
-        print(f"\n🚀 Training {name.upper()}...")
+        print(f"\nTraining {name.upper()}...")
         model.fit(X_train, y_train)
 
         # Save model
         model_path = MODEL_DIR / f"{name}_attack_model.joblib"
         joblib.dump(model, model_path)
-        print(f"💾 Saved {name} model to: {model_path}")
+        print(f"Saved {name} model to: {model_path}")
 
         # Evaluate and save metrics
         metrics = evaluate_model(name, model, X_test, y_test)
         metrics_df = pd.DataFrame([metrics])
         metrics_df.to_parquet(METRICS_DIR / f"{name}_metrics.parquet", index=False)
-        print(f"📦 Saved metrics to: {METRICS_DIR}/{name}_metrics.parquet")
+        print(f"Saved metrics to: {METRICS_DIR}/{name}_metrics.parquet")
 
 if __name__ == "__main__":
     train_all_attack_models()

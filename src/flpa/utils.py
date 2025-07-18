@@ -26,7 +26,7 @@ def save_eval_round(
     client_df.to_parquet(client_logs_dir / f"round_{round_id}_client_eval.parquet")
     agg_df.to_parquet(agg_logs_dir / f"round_{round_id}_agg_eval.parquet")
 
-    print(f"📦 Saved round {round_id} evaluation metrics to {output_dir}")
+    print(f"Saved round {round_id} evaluation metrics to {output_dir}")
 
 
 def save_train_round(
@@ -63,7 +63,7 @@ def save_train_round(
         df = pd.concat([existing_df, df], ignore_index=True)
 
     df.to_parquet(parquet_path)
-    print(f"📦 Saved round {round_id} training metadata to {output_dir}")
+    print(f"Saved round {round_id} training metadata to {output_dir}")
 
 
 def clear_output_directory(output_dir: Union[str, Path] = "outputs"):
@@ -72,7 +72,7 @@ def clear_output_directory(output_dir: Union[str, Path] = "outputs"):
     import shutil
 
     if output_dir.exists():
-        print(f"🧹 Cleaning output directory: {output_dir}")
+        print(f"Cleaning output directory: {output_dir}")
         # Remove all contents recursively
         for item in output_dir.glob("*"):
             if item.is_file():
@@ -89,4 +89,4 @@ def clear_output_directory(output_dir: Union[str, Path] = "outputs"):
     (output_dir / "attacks/models").mkdir(parents=True, exist_ok=True)
     (output_dir / "attacks/metrics").mkdir(parents=True, exist_ok=True)
 
-    print(f"✅ Output directory is ready for fresh metrics")
+    print(f"Output directory is ready for fresh metrics")
