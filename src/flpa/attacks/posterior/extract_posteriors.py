@@ -21,7 +21,7 @@ BATCH_SIZE = 128
 def extract_posteriors():
     # Step 1: Load membership dataset
     df = pd.read_parquet(MEMBERSHIP_DATASET)
-    print(f"📥 Loaded membership dataset with shape: {df.shape}")
+    print(f"Loaded membership dataset with shape: {df.shape}")
 
     # Step 2: Load CIFAR-10 train=True with same shuffling
     transform = transforms.Compose(
@@ -47,7 +47,7 @@ def extract_posteriors():
     model = ResNet()
     model.load_state_dict(torch.load(MODEL_PATH, map_location="cpu"))
     model.eval()
-    print(f"🧠 Global model loaded from {MODEL_PATH}")
+    print(f"Global model loaded from {MODEL_PATH}")
 
     # Step 4: Compute softmax predictions for each sample
     posteriors = []
@@ -78,7 +78,7 @@ def extract_posteriors():
     post_df = pd.DataFrame(posteriors)
     Path(OUTPUT_PATH).parent.mkdir(parents=True, exist_ok=True)
     post_df.to_parquet(OUTPUT_PATH, index=False)
-    print(f"✅ Saved attack feature dataset to: {OUTPUT_PATH}")
+    print(f"Saved attack feature dataset to: {OUTPUT_PATH}")
     return post_df
 
 
