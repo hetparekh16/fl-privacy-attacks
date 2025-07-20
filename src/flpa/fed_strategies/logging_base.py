@@ -6,7 +6,7 @@ from flwr.common import parameters_to_ndarrays
 
 from flpa.utils import save_train_round
 from flpa.task import set_weights
-from flpa.models import CNN, ResNet
+from flpa.models import CNN, ResNet, ResNet18WithDropout
 
 
 class BaseLoggingStrategy:
@@ -74,7 +74,7 @@ class BaseLoggingStrategy:
             # Save final model
             if server_round == self.num_rounds:
                 print("Saving final global model...")
-                model = ResNet()
+                model = ResNet18WithDropout()
                 set_weights(model, agg_weights)
                 pathlib.Path("outputs/global_model").mkdir(parents=True, exist_ok=True)
                 torch.save(model.state_dict(), "outputs/global_model/global_model.pt")

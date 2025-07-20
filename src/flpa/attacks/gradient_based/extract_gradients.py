@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 from torchvision import datasets, transforms
 from flpa.task import set_weights
-from flpa.models import ResNet
+from flpa.models import ResNet, ResNet18WithDropout
 
 DATA_ROOT = "./data"
 MODEL_PATH = "outputs/global_model/global_model.pt"
@@ -30,7 +30,7 @@ def extract_gradients():
     torch.random.manual_seed(SEED)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = ResNet().to(device)
+    model = ResNet18WithDropout().to(device)
     model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
     model.eval()
 

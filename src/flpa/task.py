@@ -60,7 +60,7 @@ def load_data(partition_id: int, num_partitions: int):
 def train(net, trainloader, epochs, device):
     """Train the model on the training set."""
     net.to(device)
-    criterion = torch.nn.CrossEntropyLoss().to(device)
+    criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1).to(device)
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     net.train()
     running_loss = 0.0

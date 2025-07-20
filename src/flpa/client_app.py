@@ -3,7 +3,7 @@ import torch
 from flwr.client import ClientApp, NumPyClient, Client
 from flwr.common import Context
 from flpa.task import get_weights, load_data, set_weights, test, train
-from flpa.models import CNN, ResNet
+from flpa.models import CNN, ResNet, ResNet18WithDropout
 
 # Define Flower Client and client_fn
 class FlowerClient(NumPyClient):
@@ -43,7 +43,7 @@ class FlowerClient(NumPyClient):
 
 
 def client_fn(context: Context) -> Client:
-    net = ResNet()
+    net = ResNet18WithDropout()
     partition_id = context.node_config["partition-id"]
     num_partitions = context.node_config["num-partitions"]
     trainloader, valloader = load_data(partition_id, num_partitions)  # type: ignore

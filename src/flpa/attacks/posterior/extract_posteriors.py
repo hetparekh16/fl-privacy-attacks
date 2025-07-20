@@ -7,7 +7,7 @@ from pathlib import Path
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from flpa.task import set_weights
-from flpa.models import CNN, ResNet
+from flpa.models import CNN, ResNet, ResNet18WithDropout
 
 # Constants
 DATA_ROOT = "./data"
@@ -44,7 +44,7 @@ def extract_posteriors():
     }
 
     # Step 3: Load global model
-    model = ResNet()
+    model = ResNet18WithDropout()
     model.load_state_dict(torch.load(MODEL_PATH, map_location="cpu"))
     model.eval()
     print(f"Global model loaded from {MODEL_PATH}")

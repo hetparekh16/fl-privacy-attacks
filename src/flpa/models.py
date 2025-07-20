@@ -26,3 +26,15 @@ def ResNet():
     model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
     model.maxpool = nn.Identity() # type: ignore
     return model
+
+
+def ResNet18WithDropout(num_classes=10, dropout_p=0.5):
+    model = models.resnet18(weights=None)
+    model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
+    model.maxpool = nn.Identity() # type: ignore
+    in_features = model.fc.in_features
+    model.fc = nn.Sequential(     # type: ignore
+        nn.Dropout(p=dropout_p),  # Added dropout here
+        nn.Linear(in_features, num_classes)
+    )
+    return model
