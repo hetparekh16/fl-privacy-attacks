@@ -23,6 +23,8 @@ def load_data(partition_id: int, num_partitions: int):
 
     transform = torchvision.transforms.Compose(
         [
+            torchvision.transforms.RandomHorizontalFlip(),
+            torchvision.transforms.RandomCrop(32, padding=4),
             torchvision.transforms.ToTensor(),
             torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ]
@@ -61,7 +63,7 @@ def train(net, trainloader, epochs, device):
     """Train the model on the training set."""
     net.to(device)
     criterion = torch.nn.CrossEntropyLoss(label_smoothing=0.1).to(device)
-    optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.001, weight_decay=1e-4)
     net.train()
     running_loss = 0.0
 
