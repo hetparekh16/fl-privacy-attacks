@@ -23,7 +23,7 @@ METRICS_DIR = Path("outputs/attacks/activation_based/metrics")
 # Config
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
-FEATURE_COLUMNS = [f"act_{j}" for j in range(512)]  # ✅ 512-dim activation vector
+FEATURE_COLUMNS = [f"act_{j}" for j in range(256)]  # ✅ 256-dim activation vector for CNN fc1
 
 MODELS = {
     "logistic": LogisticRegression(),

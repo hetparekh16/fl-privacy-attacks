@@ -4,7 +4,7 @@ from flpa.task import get_weights
 from flpa.utils import clear_output_directory
 from flpa.fed_strategies.logging_fedavg import LoggingFedAvg
 from flpa.fed_strategies.logging_fedadam import LoggingFedAdam
-from flpa.models import CNN, ResNet, ResNet18WithDropout
+from flpa.models import CNN, ResNet, ResNet18WithDropout, CNNWithDropout
 
 def weighted_average(metrics_list):
     total = sum(num_examples for num_examples, _ in metrics_list)
@@ -28,7 +28,7 @@ def server_fn(context: Context):
     num_rounds = context.run_config["num-server-rounds"]
     fraction_fit = context.run_config["fraction-fit"]
 
-    ndarrays = get_weights(ResNet18WithDropout())
+    ndarrays = get_weights(CNNWithDropout())
     parameters = ndarrays_to_parameters(ndarrays)
 
     strategy = LoggingFedAvg(

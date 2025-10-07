@@ -5,7 +5,7 @@ from pathlib import Path
 from torchvision import datasets, transforms
 from torch import nn
 from flpa.task import set_weights
-from flpa.models import ResNet, ResNet18WithDropout
+from flpa.models import ResNet, ResNet18WithDropout, CNNWithDropout
 
 DATA_ROOT = "./data"
 MODEL_PATH = "outputs/global_model/global_model.pt"
@@ -35,12 +35,12 @@ def extract_activations():
     torch.manual_seed(SEED)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = ResNet18WithDropout().to(device)
+    model = CNNWithDropout().to(device)
     model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
     model.eval()
 
-    # Register hook on penultimate layer (ResNet18: before final fc layer)
-    penultimate_layer = model.avgpool  # Or adjust if needed (check architecture)
+    # Register hook on penultimate layer (CNN: after fc1, before dropout and fc2)
+    penultimate_layer = model.fc1  # Hook after the first fully connected layer
     hook_handle = penultimate_layer.register_forward_hook(hook_fn)
 
     features_list = []
@@ -56,7 +56,7 @@ def extract_activations():
 
             # Forward pass
             _ = model(img)
-            activation = activation_store["activation"].squeeze()  # Shape: [512] for ResNet18
+            activation = activation_store["activation"].squeeze()  # Shape: [256] for CNN fc1
 
             feat_dict = {
                 "sample_id": sample_id,
